@@ -1,116 +1,160 @@
-# Cooling Effects of Large Urban Mountains  
-### Code and Workflow for the Chengdu Longquan Mountains Urban Forest Park Study
+# Cooling Effects of Large Urban Mountains: A Case Study of Chengdu Longquan Mountains
 
-This repository contains all scripts, workflow descriptions, and supplementary materials used in the study:
+This repository contains all scripts, data structure descriptions, and reproducible workflows for the study **"Cooling Effects in Large Urban Mountains: A Case Study of Chengdu Longquan Mountains Urban Forest Park"**.  
+The project evaluates the spatiotemporal cooling effects of Longquan Mountain Urban Forest Park (LMFP) using **Landsat-based LST**, **buffer-based cooling metrics**, and **XGBoost–SHAP modeling**.
 
-**“Cooling Effects in Large Urban Mountains: A Case Study of Chengdu Longquan Mountains Urban Forest Park, China.”**
+<img width="1119" height="1474" alt="graphical abstract forests-3996816" src="https://github.com/user-attachments/assets/342d6afa-f33d-41a9-aa97-d9bbeb616986" />
 
-<img width="1119" height="1474" alt="graphical abstract forests-3996816" src="https://github.com/user-attachments/assets/53b0b153-44d9-4586-87c4-bba0eab7332e" />
+---
+
+## 📌 Key Objectives
+
+1. **Retrieve and analyze Land Surface Temperature (LST)** for 2001, 2011, and 2023.  
+2. **Quantify cooling effects** using Park Cooling Distance (PCD), Intensity (PCI), Area (PCA), and Efficiency (PCE).  
+3. **Identify drivers of cooling intensity (MCI)** using XGBoost and SHAP.  
+4. **Analyze long-term thermal evolution** of the LMFP and surrounding urban areas.
+
+---
+
+## 📁 Repository Structure
+
+---
+
+## 🛰 Data Description
+
+### **1. LST Data**
+Derived from Landsat 5 TM & Landsat 8 OLI/TIRS using the **Radiative Transfer Equation (RTE)**:
+
+- Atmospheric correction  
+- Emissivity correction using NDVI  
+- Brightness temperature conversion  
+- Single-date images selected (cloud <10%)
+
+### **2. Cooling Metrics**
+
+| Metric | Description |
+|--------|-------------|
+| **PCD** | Park Cooling Distance (m) |
+| **PCI** | Park Cooling Intensity (°C) |
+| **PCA** | Park Cooling Area (km²) |
+| **PCE** | Park Cooling Efficiency (%) |
+
+Computed using **concentric buffer rings** at 30 m intervals and **inflection-point method**.
+
+### **3. Driving Factors**
+Categories include:
+
+- Vegetation structure (LAI, FVC, CH)  
+- Evapotranspiration (Es, Ec)  
+- Topography (slope, aspect, elevation)  
+- Human activity (population, road density)  
+- Landscape pattern (LPI, SHDI, PD, CA, CONTAG, DIVISION)
+
+---
+
+## 🔧 Software Requirements
+
+### **R environment**
+Required packages:
+
+install.packages(c("raster", "rgdal", "sp", "sf", "ggplot2", "dplyr"))
+install.packages(c("randomForest", "xgboost", "iml", "pdp"))
 
 
-1. Overview
+### **Python Requirements**
+pip install numpy pandas shap xgboost matplotlib scikit-learn geopandas rasterio
 
-This repository contains the code, datasets, and analysis for the paper titled "Cooling Effects in Large Urban Mountains: A Case Study of Chengdu Longquan Mountains Urban Forest Park." The study investigates the cooling effects of the Longquan Mountain Forest Park (LMFP) and its role in mitigating the Urban Heat Island (UHI) effect. The main focus is on the spatiotemporal variation of cooling effects and their driving factors.
+## ▶️ **How to Reproduce the Results**
+### Step 1 — Preprocess Data
 
-2. Files in the Repository
+Run:Rscript driverFactor/data_preprocessing.R
 
-/data: Contains all the raw and processed data, including LST datasets, vegetation data, and environmental factors.
+This generates:
 
-/scripts: Python and R scripts for data processing, analysis, and model building.
+Standardized variables
 
-data_preprocessing.py: Scripts for preprocessing various datasets (e.g., vegetation indices, road density).
+Landscape metrics
 
-xgboost_model.py: Code for training the XGBoost model to predict cooling intensity.
+Overlay of all factors with LST grids
 
-shap_analysis.py: Code for generating SHAP plots to explain the model.
+### Step 2 — Run XGBoost + SHAP
 
-3. Installation and Setup
+Execute the Python script:
 
-To use the scripts, ensure you have the following Python libraries installed:
+python driverFactor/shap-XGboost.py
 
-numpy
+This produces:
 
-pandas
+Trained XGBoost models
 
-matplotlib
+SHAP value plots
 
-seaborn
+Feature importance
 
-xgboost
+Interaction effects
 
-shap
+Outputs are stored in:
 
-scikit-learn
+driverFactor/XGB2001/
+driverFactor/XGB2011/
+driverFactor/XGB2023/
 
-geopandas
+### Step 3 — Compute Cooling Metrics
 
-rasterio
+(MCI, PCD, PCI, PCA, PCE)
 
-You can install the necessary libraries using pip:
+Rscript driverFactor/PDP.R
 
-pip install numpy pandas matplotlib seaborn xgboost shap scikit-learn geopandas rasterio
+### Step 4 — Generate Visualizations
 
-4. Data Access
+Spatial maps, PDP curves, and cooling-distance figures.
 
-The datasets used in the study are publicly available:
-
-Landsat Data: Available from the USGS Earth Explorer website.
-
-Vegetation and Environmental Data: Available from Google Earth Engine and the USGS DEM data repository.
-
-5. Methodology
-
-A brief summary of the methodology used in the study:
-
-LST Retrieval: Land Surface Temperature (LST) was retrieved from Landsat imagery for three time periods (2001, 2011, 2023). The radiative transfer equation was used to convert thermal infrared data into LST.
-
-XGBoost Model: An XGBoost model was trained using various environmental factors (e.g., vegetation cover, elevation, population density) to predict cooling intensity.
-
-SHAP Analysis: The SHAP method was applied to the model to understand the contributions of individual features.
-
-6. Reproducibility
-
-To reproduce the results, follow these steps:
-
-Download the required raw data (Landsat imagery, vegetation indices, etc.) from the specified data sources.
-
-Run the preprocessing scripts to clean and prepare the data.
-
-Train the XGBoost model using the provided code.
-
-7. Acknowledgments
-
-The authors would like to thank the following data providers for their contributions:
-
-USGS for Landsat imagery.
-
-Oak Ridge National Laboratory for population density data.
-
-Google Earth Engine for vegetation indices and evapotranspiration data.
-
-8. License
-
-This repository is open source and available under the MIT License.
-
-Folder Structure
+SHAP shows clear nonlinear patterns and strong vegetation–terrain interactions.
 Cooling_Effects_Large_Urban_Mountains/
 │
-├── data/
-│   ├── 20010614_lst.tif
-│   ├── 20110630_lst.tif
-│   ├── 20230705_lst.tif
-│   ├── vegetation_data.csv
-│   └── human_activity_data.csv
+├── driverFactor/ # Driving factors & model results
+│ ├── 2001/ # Processed data (standardized CSV, SHAP results)
+│ ├── 2011/
+│ ├── 2023/
+│ ├── XGB2001/ # XGBoost results (models, plots, importance)
+│ ├── XGB2011/
+│ ├── XGB2023/
+│ ├── venv/ # Python virtual environment (optional)
+│ ├── data_preprocessing.R # R script for data cleaning and variable generation
+│ ├── PDP.R # Partial Dependence Plot (R)
+│ ├── biased_ranking.R # Feature ranking validation
+│ └── shap-XGboost.py # Python script for XGBoost + SHAP
 │
-├── scripts/
-│   ├── LST_retrieval.py
-│   ├── data_preprocessing.py
-│   ├── xgboost_model.py
-│   └── shap_analysis.py
-
+├── LST/ # Raw Landsat LST files (input)
+│ ├── 20010614_lst.tif
+│ ├── 20110630_lst.tif
+│ └── 20230705_lst.tif
+│
+├── MCI/ # Mountain Cooling Intensity (output)
+│
+├── scope/
+│ └── lqs.shp # Study area boundary (Longquan Mountain)
 │
 └── README.md
 
+##📞 **Contact**
 
-This structure is clear, supports reproducibility, and ensures that all aspects of the research workflow (data, preprocessing, modeling, and analysis) are available to others in a transparent way.
+For data requests or collaboration:
+
+Email (Corresponding Author):
+zhanglin@cib.ac.cn
+
+This repository is released under the MIT License.
+You may freely use, modify, and distribute the code with attribution.
+
+## **Acknowledgments**
+
+This project was supported by:
+
+-National Natural Science Foundation of China (32360298)
+
+-West Light Foundation of CAS
+
+-Longquan Mountain Native Flora and Fauna Conservation Project
+
 
