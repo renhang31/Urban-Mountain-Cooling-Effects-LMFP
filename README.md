@@ -7,7 +7,7 @@ The project evaluates the spatiotemporal cooling effects of Longquan Mountain Ur
 
 ---
 
-## 📌 Key Objectives
+##  Key Objectives
 
 1. **Retrieve and analyze Land Surface Temperature (LST)** for 2001, 2011, and 2023.  
 2. **Quantify cooling effects** using Park Cooling Distance (PCD), Intensity (PCI), Area (PCA), and Efficiency (PCE).  
@@ -16,7 +16,7 @@ The project evaluates the spatiotemporal cooling effects of Longquan Mountain Ur
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ---
 
@@ -64,7 +64,7 @@ install.packages(c("randomForest", "xgboost", "iml", "pdp"))
 ### **Python Requirements**
 pip install numpy pandas shap xgboost matplotlib scikit-learn geopandas rasterio
 
-## ▶️ **How to Reproduce the Results**
+## **How to Reproduce the Results**
 ### Step 1 — Preprocess Data
 
 Run:Rscript driverFactor/data_preprocessing.R
@@ -110,6 +110,9 @@ Rscript driverFactor/PDP.R
 Spatial maps, PDP curves, and cooling-distance figures.
 
 SHAP shows clear nonlinear patterns and strong vegetation–terrain interactions.
+
+## **Contents**
+
 Cooling_Effects_Large_Urban_Mountains/
 │
 ├── driverFactor/ # Driving factors & model results
@@ -137,7 +140,7 @@ Cooling_Effects_Large_Urban_Mountains/
 │
 └── README.md
 
-##📞 **Contact**
+## **Contact**
 
 For data requests or collaboration:
 
