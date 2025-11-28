@@ -1,0 +1,341 @@
+This document provides a detailed protocol for acquiring and processing all datasets used in the study “Cooling Effects in Large Urban Mountains: A Case Study of Chengdu Longquan Mountains Urban Forest Park”, with the aim of ensuring full reproducibility for reviewers and other researchers. All datasets are derived from publicly available remote sensing products or open data platforms and are processed to a common 30 m grid consistent with the LST data and the LMFP boundary (scope/lqs.shp).
+
+The following categories of variables are included:
+
+land surface temperature (LST):
+
+Vegetation structure and cover: FVC, LAI, CH
+
+Water-related variables: Es (vegetation transpiration), Ec (soil evaporation)
+
+Topography: slope, aspect, elevation
+
+Human activity: population density, road density
+
+Landscape pattern: CA, PD, LPI, SHDI, DIVISION, AI, CONTAG
+
+Land cover: CLCD-based green patches
+
+All raster datasets are clipped to the study area and resampled to 30 m resolution before being used to derive Mountain Cooling Intensity (MCI), park cooling metrics (PCD, PCI, PCA, PCE), and XGBoost–SHAP analysis.
+
+2. Prerequisites
+
+Google Earth Engine (GEE) account
+
+Visit: https://earthengine.google.com/
+
+Sign in with a Google account and request access if needed.
+
+GEE Code Editor
+
+URL: https://code.earthengine.google.com/
+
+Used to run scripts, visualize maps, and export raster datasets.
+
+Desktop GIS software
+
+ArcGIS or QGIS, for reprojection, clipping, resampling, and road-density calculation.
+
+Landscape metrics software
+
+Fragstats 4.2 or equivalent (e.g., R package landscapemetrics), for computing CA, PD, LPI, SHDI, DIVISION, AI, CONTAG from CLCD-derived green patches.
+
+3. Standard GEE Export Procedure
+
+The general workflow for all GEE-based datasets (FVC, CLCD, LAI, Es/Ec, CH, DEM-derived variables) is similar:
+
+Open the provided GEE script link in a web browser (links listed below).
+
+Check and, if necessary, adjust:
+
+Study region geometry (can be replaced by imported lqs.shp or a simplified polygon);
+
+Time range (aligned with 2001, 2011, 2023 summer or growing season);
+
+Spatial resolution (use native resolution; resampling to 30 m is done later in GIS).
+
+Click Run to preview the map and verify that the values and spatial coverage are reasonable.
+
+Locate the Export.image.toDrive(...) (or Export.table.toDrive(...)) command:
+
+Set description (task name), folder (Google Drive folder), fileNamePrefix (output name), scale (resolution), and region (study area).
+
+Open the Tasks tab, click Run for the corresponding export task, and confirm the parameters.
+
+Once export is completed, download the GeoTIFF (or shapefile) from Google Drive and process it in ArcGIS/QGIS (clip, reproject, resample).
+
+4. Dataset-Specific Instructions
+
+4.1 FVC (Fractional Vegetation Cover)
+
+GEE script:
+https://code.earthengine.google.com/6ecd51a29d50964c40bb76eee897ff2e
+
+Source: FVC product at 250 m spatial resolution from a Chinese data-sharing platform, accessed via GEE.
+
+Temporal resolution: annual composites for 2001, 2011, and 2023 growing seasons.
+
+Steps:
+
+Open the FVC script;
+
+Set the time window to the growing season (e.g., April–October) for each target year;
+
+Generate annual mean FVC for 2001, 2011, 2023;
+
+Export as GeoTIFFs (FVC_2001, FVC_2011, FVC_2023).
+
+Post-processing:
+
+Reproject to the coordinate system used for LST;
+
+Clip to lqs.shp;
+
+Resample to 30 m using bilinear interpolation.
+
+4.2 CLCD (China Land Cover Dataset)
+
+GEE script:
+https://code.earthengine.google.com/8d9df37585e1d2485aaffbe2ab8410d5
+
+Source: China Land Cover Dataset (CLCD), 30 m resolution.
+
+Temporal resolution: annual; years corresponding to 2001, 2011, 2023 (or the closest available years).
+
+Steps:
+
+Open the CLCD script;
+
+Select the appropriate CLCD year for each time slice;
+
+Export:
+
+Full land-cover raster;
+
+Masked green-space raster or vector, including forest, shrubland, grassland, etc.
+
+Post-processing:
+
+Clip to the study area, reproject if needed;
+
+Convert green classes to vector polygons to serve as landscape patches for Fragstats.
+
+4.3 LAI (Leaf Area Index)
+
+GEE script:
+https://code.earthengine.google.com/db7adb98b85919c3ae4760e1ce793c78
+
+Source: MODIS LAI product, 500 m resolution, 8-day temporal resolution.
+
+Steps:
+
+Open the LAI script;
+
+For each target year (2001, 2011, 2023), select the growing-season period and compute the annual mean;
+
+Export three layers (LAI_2001, LAI_2011, LAI_2023) via Export.image.toDrive.
+
+Post-processing:
+
+Reproject, clip, and resample to 30 m to match the LST grid.
+
+4.4 Es and Ec (Vegetation Transpiration and Soil Evaporation)
+
+GEE script:
+https://code.earthengine.google.com/bbd0e2a417522b284c8e02e8621114ca
+
+Source: PML_V2 global evapotranspiration dataset, 500 m resolution, 8-day composites.
+
+Steps:
+
+Open the script;
+
+Compute growing-season mean Es and Ec for 2001, 2011, and 2023;
+
+Export six rasters: Es_2001/2011/2023 and Ec_2001/2011/2023.
+
+Post-processing:
+
+Reproject and clip;
+
+Resample to 30 m, spatially align with LST.
+
+4.5 CH (Canopy Height)
+
+GEE script:
+https://code.earthengine.google.com/9582e1161b1b2e2a97d68a8a11d0ed7b
+
+Source: Global canopy height product from GLAD, 30 m resolution.
+
+Temporal resolution: single baseline year (treated as quasi-static structure).
+
+Steps:
+
+Open the CH script and load the GLAD canopy height raster;
+
+Clip to the LMFP study area;
+
+Export as 30 m GeoTIFF.
+
+Post-processing:
+
+CH is used as a static structural variable for all three years (2001, 2011, 2023).
+
+4.6 Topographic Variables: Slope, Elevation, Aspect
+
+GEE script:
+https://code.earthengine.google.com/6a4ed947402e7f8dec5197bd42877301
+
+Source: USGS DEM (30 m), from which slope and aspect are derived.
+
+Temporal resolution: baseline year (~2000), assumed constant.
+
+Steps:
+
+Open the script;
+
+Compute:
+
+Elevation
+
+Slope
+
+Aspect
+
+Export the three layers as 30 m GeoTIFFs.
+
+Post-processing:
+
+Reproject and clip to lqs.shp;
+
+Use as time-invariant topographic variables in the modeling framework.
+
+4.7 Population Density (Population)
+
+GEE script:
+https://code.earthengine.google.com/89bc4512e53c030e8a51b9315f6e4ba0
+
+Source: LandScan global population dataset from Oak Ridge National Laboratory, ~1 km resolution.
+
+Temporal resolution: annual datasets for ~2001, ~2011, ~2023 (or nearest available).
+
+Steps:
+
+Open the population script;
+
+For each year, load the corresponding LandScan raster;
+
+Clip to the study area and export as GeoTIFF (Pop_2001, Pop_2011, Pop_2023).
+
+Post-processing:
+
+Resample to 30 m (bilinear or cubic convolution);
+
+Use zonal sampling so each 30 m LST pixel is assigned a population density value.
+
+4.8 Roads (Road Density)
+
+Source: OpenStreetMap
+URL: https://www.openstreetmap.org/
+
+Recommended acquisition methods:
+
+OSM Export tool:
+
+Navigate to the Chengdu–Longquan Mountains region;
+
+Use the Export function to download .osm or .pbf files;
+
+Overpass API:
+
+Use Overpass Turbo, query for highway=* features within the study extent;
+
+Export as .geojson or .shp.
+
+Post-processing:
+
+Open the OSM road data in ArcGIS/QGIS;
+
+Reproject to match the LST CRS;
+
+Clip by lqs.shp;
+
+Compute road density using a moving window (e.g., 300 m radius):
+
+Sum total road length within each window;
+
+Divide by window area to obtain road density (e.g., m/m² or km/km²);
+
+Export the resulting road-density raster and align it with the 30 m LST grid.
+
+5. Landscape Metrics: CA, PD, LPI, SHDI, DIVISION, AI, CONTAG
+
+Input: green patches extracted from CLCD within the study area.
+
+Tool: Fragstats 4.2 (or equivalent).
+
+Workflow:
+
+Reclassify CLCD to a single “green space” class (forest, shrubland, grassland, etc.).
+
+Convert green-space raster to polygon patches.
+
+Import the patch map into Fragstats:
+
+Define a 30 m grid;
+
+Use patch-based configuration as input.
+
+In Fragstats, select class-level metrics:
+
+CA, PD, LPI, SHDI, DIVISION, AI, CONTAG.
+
+Run the analysis separately for each target year (2001, 2011, 2023).
+
+Export the metric tables and spatially link them to the 30 m analysis grid via zonal assignment or spatial join.
+
+6.land surface temperature (LST)
+
+6.1. Data Download:
+
+Data Source: The data is from the United States Geological Survey (USGS), specifically Landsat 5 and Landsat 8 satellite imagery.
+
+Landsat 5 and Landsat 8 Download Link:
+
+United States Geological Survey (USGS) - Earth Explorer
+
+Steps:
+
+Visit the above link, log in or register your USGS account.
+
+Select Landsat in the Data Sets section, then choose Landsat 5 or Landsat 8.
+
+Set the region and time range in the search box.
+
+Submit the search, filter the relevant data, and select the imagery files for download.
+
+6.2. Data Processing:
+
+Software Requirement: ENVI software for radiative transfer processing and surface temperature calculation.
+
+Steps:
+
+After downloading, import the data into ENVI software.
+
+Apply the radiative transfer method for data processing and surface temperature calculation.
+
+Follow the steps for radiometric calibration and temperature calculation as outlined in the ENVI manual.
+
+The final result will be the surface temperature image.
+
+7. Consistency with the Main Analysis and Reproducibility
+
+All raster variables (FVC, LAI, CH, Es, Ec, slope, aspect, elevation, population, road density, landscape metrics) are resampled to 30 m and co-registered with the LST grid.
+
+Data sources, spatial resolutions, and temporal resolutions strictly follow the specifications listed in Table S1 of the Supplementary Materials.
+
+Multicollinearity among all drivers was evaluated using Variance Inflation Factor (VIF); all variables had VIF < 10, indicating no severe multicollinearity.
+
+Landsat-derived LST was validated against MODIS MOD11A1 LST, showing strong agreement and providing a robust basis for subsequent cooling-effect quantification.
+
+Following the links and steps given here, any researcher can re-download all input datasets from GEE and OpenStreetMap, apply the same clipping, resampling, and statistical procedures, and reproduce the main indices (MCI, PCD, PCI, PCA, PCE) and the XGBoost–SHAP modeling results.
