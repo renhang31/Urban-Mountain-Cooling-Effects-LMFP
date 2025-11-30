@@ -11,7 +11,7 @@ The project evaluates the spatiotemporal cooling effects of Longquan Mountain Ur
 This repository contains metadata, processed data, and code related to the research paper **"Cooling Effects in Large Urban Mountains: A Case Study of Chengdu Longquan Mountains Urban Forest Park."** The dataset and results are made publicly available for reproducibility and further research.
 
 ### Access the full dataset here:
-[Cooling Effects in Large Urban Mountains](https://drive.google.com/drive/folders/1gHX0cKLMEcOywOjteYwzoPeOFOCIylf1?usp=sharing)
+[Cooling Effects in Large Urban Mountains]:https://drive.google.com/drive/folders/1gHX0cKLMEcOywOjteYwzoPeOFOCIylf1?usp=sharing
 
 <img width="1174" height="539" alt="image" src="https://github.com/user-attachments/assets/0495888a-cc8b-454a-8bb6-df23b28d5f30" />
 
